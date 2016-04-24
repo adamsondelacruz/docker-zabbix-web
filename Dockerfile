@@ -10,7 +10,7 @@ RUN apt-get update && \
     cd /tmp && \
     dpkg -i zabbix-release_${ZABBIX_VERSION_LONG}+wheezy_all.deb && \
     apt-get update && \
-    apt-get install zabbix-frontend-php -y && \
+    apt-get install zabbix-frontend-php mysql-client -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /etc/apache2/sites-enabled/*
 

@@ -4,30 +4,33 @@
 cat <<EOF > /etc/zabbix/web/zabbix.conf.php
 <?php
 // Zabbix GUI configuration file.
-global $DB;
+global \$DB;
 
-$DB['TYPE']     = 'MYSQL';
-$DB['SERVER']   = '${DBSERVER:-localhost}';
-$DB['PORT']     = '0';
-$DB['DATABASE'] = '${DBNAME:-zabbix}';
-$DB['USER']     = '${DBUSER:-zabbix}';
-$DB['PASSWORD'] = '${DBPASSWORD:-zabbix}';
+\$DB['TYPE']     = 'MYSQL';
+\$DB['SERVER']   = '${DBSERVER:-localhost}';
+\$DB['PORT']     = '${DBPORT:-3306}';
+\$DB['DATABASE'] = '${DBNAME:-zabbix}';
+\$DB['USER']     = '${DBUSER:-zabbix}';
+\$DB['PASSWORD'] = '${DBPASSWORD:-zabbix}';
 
 // Schema name. Used for IBM DB2 and PostgreSQL.
-$DB['SCHEMA'] = '';
+\$DB['SCHEMA'] = '';
 
-$ZBX_SERVER      = '${ZBXSERVER:-localhost}';
-$ZBX_SERVER_PORT = '${ZBXSERVERPORT:-10051}';
-$ZBX_SERVER_NAME = '${ZBXSERVERNAME:-Zabbix}';
+\$ZBX_SERVER      = '${ZBXSERVER:-localhost}';
+\$ZBX_SERVER_PORT = '${ZBXSERVERPORT:-10051}';
+\$ZBX_SERVER_NAME = '${ZBXSERVERNAME:-Zabbix}';
 
-$IMAGE_FORMAT_DEFAULT = IMAGE_FORMAT_PNG;
+\$IMAGE_FORMAT_DEFAULT = IMAGE_FORMAT_PNG;
 ?>
 EOF
 
 # Create VHOST
 cat <<EOF > /etc/apache2/sites-enabled/zabbix.conf
+NameVirtualHost *:80
+
 <VirtualHost *:80>
-  ServerName zabbix.dj-wasabi.local
+  ServerName ${ZABBIX_URL}
+  DocumentRoot "/usr/share/zabbix"
 #    <IfModule mod_alias.c>
 #        Alias /zabbix /usr/share/zabbix
 #    </IfModule>
@@ -91,5 +94,7 @@ EOF
 chown www-data:www-data /etc/zabbix/web/zabbix.conf.php
 chown www-data:www-data /etc/apache2/sites-enabled/zabbix.conf
 
-systemctl restart apache2
+sed -i 's/IncludeOptional /IncludeOptional \/etc\/apache2\//g' /etc/apache2/apache2.conf
 
+cd /etc/apache2
+apachectl -d . -f /etc/apache2/apache2.conf -e info -DFOREGROUND
