@@ -24,7 +24,7 @@ docker pull wdijkerman/zabbix-web
 Basic usage of the container:
 
 ```bash
-docker run  -p 10051:10051 --name zabbix-web \
+docker run  -p 80:80 --name zabbix-web \
             -e ZABBIXURL=zabbix.example.com \
             -e ZBXSERVERNAME=vserver-151 \
             -e ZBXSERVER=192.168.1.151 \
